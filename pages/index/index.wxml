@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="hero">
+    <view class="logo">🎨</view>
+    <text class="title">{{motto}}</text>
+    <text class="subtitle">基于 Three.js 的微信小程序 3D 渲染方案</text>
+  </view>
+
+  <view class="features">
+    <view class="feature-item">
+      <text class="feature-icon">🔮</text>
+      <text class="feature-text">程序化几何体渲染</text>
+    </view>
+    <view class="feature-item">
+      <text class="feature-icon">📦</text>
+      <text class="feature-text">GLB / GLTF 模型加载</text>
+    </view>
+    <view class="feature-item">
+      <text class="feature-icon">👆</text>
+      <text class="feature-text">触摸旋转交互</text>
+    </view>
+    <view class="feature-item">
+      <text class="feature-icon">💡</text>
+      <text class="feature-text">实时动态光照</text>
+    </view>
+  </view>
+
+  <button class="btn-enter" bindtap="goToViewer">
+    进入 3D 模型展示
+  </button>
+</view>

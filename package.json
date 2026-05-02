@@ -1,0 +1,8 @@
+{
+  "name": "test2",
+  "version": "1.0.0",
+  "description": "3D模型展示小程序",
+  "dependencies": {
+    "threejs-miniprogram": "^0.0.8"
+  }
+}

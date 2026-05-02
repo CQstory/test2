@@ -1,0 +1,46 @@
+<view class="viewer-container">
+  <canvas
+    type="webgl"
+    id="webglCanvas"
+    class="webgl-canvas"
+    bindtouchstart="handleTouchStart"
+    bindtouchmove="handleTouchMove"
+    bindtouchend="handleTouchEnd"
+    bindtap="handleCanvasTap"
+  ></canvas>
+
+  <view class="hint-overlay">
+    <text class="hint-text">👆 单指旋转 · 🤏 双指缩放 · 👆👆 双击切换自动旋转</text>
+  </view>
+
+  <view class="toolbar">
+    <view class="toolbar-top">
+      <text class="model-name">{{modelName}}</text>
+      <button class="btn-icon" bindtap="toggleAutoRotate" size="mini">
+        {{autoRotate ? '⏸' : '▶'}}
+      </button>
+    </view>
+    <view class="toolbar-bottom">
+      <button class="btn-action" bindtap="onQuickLoadHelmet" size="mini" loading="{{loading}}">🪖 加载头盔</button>
+      <button class="btn-action" bindtap="onQuickLoadDuck" size="mini" loading="{{loading}}">🦆 加载鸭子</button>
+      <button class="btn-action" bindtap="onResetModel" size="mini">🔄 重置</button>
+      <button class="btn-action" bindtap="onToggleInput" size="mini">🔗 输入URL</button>
+    </view>
+  </view>
+
+  <view class="url-panel" wx:if="{{showInput}}">
+    <view class="url-input-row">
+      <input
+        class="url-input"
+        placeholder="输入GLB/GLTF模型URL"
+        value="{{modelUrl}}"
+        bindinput="onModelUrlInput"
+        confirm-type="done"
+      />
+      <button class="btn-load" bindtap="onLoadModel" size="mini" loading="{{loading}}">加载</button>
+    </view>
+    <view class="url-hint">
+      支持 .glb / .gltf 格式。CDN需支持跨域。
+    </view>
+  </view>
+</view>

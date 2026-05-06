@@ -1,0 +1,70 @@
+<view class="mc-page">
+  <!-- 顶栏 -->
+  <view class="top-bar">
+    <text class="page-title">商家中心</text>
+  </view>
+
+  <!-- 商家信息卡片 -->
+  <view class="merchant-card">
+    <image class="merchant-avatar" src="{{merchant.avatar}}" mode="aspectFill" />
+    <view class="merchant-info">
+      <text class="merchant-name">{{merchant.name}}</text>
+      <text class="merchant-status">已认证商家</text>
+    </view>
+    <view class="store-btn" bindtap="onGoStore">
+      <text>查看店铺 ›</text>
+    </view>
+  </view>
+
+  <!-- 数据概览 -->
+  <view class="stats-row">
+    <view class="stat-card">
+      <text class="stat-value">{{stats.models}}</text>
+      <text class="stat-label">展示中模型</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.views}}</text>
+      <text class="stat-label">本月浏览量</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.daysLeft}}天</text>
+      <text class="stat-label">剩余租期</text>
+    </view>
+  </view>
+
+  <!-- 当前套餐 -->
+  <view class="plan-card">
+    <view class="plan-info">
+      <text class="plan-label">当前套餐</text>
+      <text class="plan-name">{{merchant.planName}}</text>
+      <text class="plan-expire">到期日：{{merchant.planExpire}}</text>
+    </view>
+    <view class="plan-actions">
+      <view class="plan-btn plan-btn-renew">续费</view>
+      <view class="plan-btn plan-btn-upgrade">升级</view>
+    </view>
+  </view>
+
+  <!-- 快捷菜单 -->
+  <view class="menu-section">
+    <text class="section-title">快捷入口</text>
+    <view class="menu-grid">
+      <view
+        wx:for="{{menus}}"
+        wx:key="key"
+        class="menu-item"
+        data-key="{{item.key}}"
+        bindtap="onMenuTap"
+      >
+        <text class="menu-icon">{{item.icon}}</text>
+        <view class="menu-text">
+          <text class="menu-label">{{item.label}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <tab-bar active="merchant" />
+</view>

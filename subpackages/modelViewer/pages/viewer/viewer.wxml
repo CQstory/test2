@@ -9,7 +9,14 @@
     bindtap="handleCanvasTap"
   ></canvas>
 
-  <view class="hint-overlay">
+  <view class="loading-overlay" wx:if="{{loading || !sceneReady}}">
+    <view class="loading-spinner">
+      <view class="spinner-ring"></view>
+      <text class="loading-text">模型加载中...</text>
+    </view>
+  </view>
+
+  <view class="hint-overlay" wx:if="{{sceneReady && !loading}}">
     <text class="hint-text">👆 单指旋转 · 🤏 双指缩放 · 👆👆 双击切换自动旋转</text>
   </view>
 

@@ -1,0 +1,67 @@
+<view class="detail-page" wx:if="{{model}}">
+  <!-- 缩略图 -->
+  <view class="thumb-section">
+    <image class="detail-thumb" src="{{model.thumbnail}}" mode="widthFix" />
+    <view class="thumb-overlay">
+      <view class="overlay-tags">
+        <text wx:for="{{model.tags}}" wx:key="*this" class="tag">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <text class="model-name">{{model.name}}</text>
+    <text class="model-desc">{{model.description}}</text>
+
+    <view class="model-specs">
+      <view class="spec-item">
+        <text class="spec-label">格式</text>
+        <text class="spec-value">{{model.format}}</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">面数</text>
+        <text class="spec-value">{{model.faces / 1000}}K</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">分类</text>
+        <text class="spec-value">{{model.category === 'character' ? '人物' : model.category === 'scene' ? '场景' : model.category === 'prop' ? '道具' : '载具'}}</text>
+      </view>
+    </view>
+
+    <!-- 查看3D -->
+    <button class="btn-view-3d" bindtap="onView3D">
+      <text>🔮 查看3D模型</text>
+      <text class="btn-hint">支持旋转/缩放交互</text>
+    </button>
+  </view>
+
+  <!-- 商家信息 -->
+  <view class="merchant-section" wx:if="{{merchant}}">
+    <view class="section-bar">
+      <text class="section-title">商家信息</text>
+      <text class="section-action" bindtap="onGoStore">查看店铺 ›</text>
+    </view>
+    <view class="merchant-card" bindtap="onGoStore">
+      <image class="merchant-avatar" src="{{merchant.avatar}}" mode="aspectFill" />
+      <view class="merchant-info">
+        <text class="merchant-name">{{merchant.name}}</text>
+        <text class="merchant-desc">{{merchant.description}}</text>
+      </view>
+      <text class="merchant-arrow">›</text>
+    </view>
+    <button class="btn-contact" bindtap="onContactMerchant">💬 联系商家</button>
+  </view>
+
+  <!-- 相关模型 -->
+  <view class="related-section" wx:if="{{relatedModels.length}}">
+    <text class="section-title">该商家的其他模型</text>
+    <scroll-view class="related-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="related-list">
+        <view wx:for="{{relatedModels}}" wx:key="id" class="related-item">
+          <model-card model="{{item}}" bind:tap="onRelatedTap" />
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

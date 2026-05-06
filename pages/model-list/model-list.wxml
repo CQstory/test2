@@ -1,0 +1,45 @@
+<view class="list-page">
+  <!-- 顶栏 -->
+  <view class="top-bar">
+    <text class="page-title">模型库</text>
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索模型名称、标签..."
+        placeholder-style="color: rgba(255,255,255,0.25)"
+        value="{{searchValue}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+  </view>
+
+  <!-- 分类Tab -->
+  <scroll-view class="category-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+    <view
+      wx:for="{{categories}}"
+      wx:key="key"
+      class="tab {{activeCategory === item.key ? 'tab-active' : ''}}"
+      data-category="{{item.key}}"
+      bindtap="onCategoryTap"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <!-- 模型列表 -->
+  <view class="list-content">
+    <view class="list-grid" wx:if="{{filteredModels.length}}">
+      <model-card
+        wx:for="{{filteredModels}}"
+        wx:key="id"
+        model="{{item}}"
+        bind:tap="onCardTap"
+      />
+    </view>
+    <view class="empty" wx:else>
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无匹配的模型</text>
+    </view>
+  </view>
+
+  <tab-bar active="browse" />
+</view>

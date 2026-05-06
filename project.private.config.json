@@ -19,5 +19,18 @@
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true
   },
-  "libVersion": "3.15.2"
+  "libVersion": "3.15.2",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/model-list/model-list",
+          "pathName": "pages/model-list/model-list",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  }
 }

@@ -1,8 +1,7 @@
 {
-  "navigationBarTitleText": "3D模型展示平台",
+  "navigationBarTitleText": "商家中心",
   "navigationStyle": "custom",
   "usingComponents": {
-    "model-card": "/components/model-card/model-card",
     "tab-bar": "/components/tab-bar/tab-bar"
   }
 }

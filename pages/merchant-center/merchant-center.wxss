@@ -1,0 +1,209 @@
+page {
+  background: #0f0c29;
+}
+
+.mc-page {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.top-bar {
+  padding: 100rpx 32rpx 24rpx;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Merchant card */
+.merchant-card {
+  margin: 0 24rpx 24rpx;
+  padding: 24rpx 28rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+}
+
+.merchant-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #3a3a4e;
+}
+
+.merchant-info {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.merchant-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.merchant-status {
+  font-size: 22rpx;
+  color: #4ecdc4;
+  padding: 4rpx 14rpx;
+  background: rgba(78, 205, 196, 0.12);
+  border-radius: 8rpx;
+  display: inline-block;
+}
+
+.store-btn {
+  padding: 12rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Stats */
+.stats-row {
+  display: flex;
+  margin: 0 24rpx 24rpx;
+  gap: 16rpx;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 24rpx 16rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #4ecdc4;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Plan card */
+.plan-card {
+  margin: 0 24rpx 32rpx;
+  padding: 24rpx 28rpx;
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.12), rgba(68, 136, 255, 0.08));
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(78, 205, 196, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.plan-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.4);
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.plan-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.plan-expire {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.plan-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.plan-btn {
+  padding: 12rpx 24rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.plan-btn-renew {
+  color: #4ecdc4;
+  border: 1rpx solid rgba(78, 205, 196, 0.4);
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.plan-btn-upgrade {
+  color: #1a1a2e;
+  background: #4ecdc4;
+}
+
+/* Menu */
+.menu-section {
+  padding: 0 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.menu-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.menu-item:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.menu-text {
+  flex: 1;
+}
+
+.menu-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.menu-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.menu-arrow {
+  font-size: 36rpx;
+  color: rgba(255, 255, 255, 0.3);
+}

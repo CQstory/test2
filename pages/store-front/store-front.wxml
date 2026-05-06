@@ -1,0 +1,42 @@
+<view class="store-page" wx:if="{{merchant}}">
+  <!-- 封面区 -->
+  <view class="store-cover">
+    <image class="cover-img" src="{{merchant.cover}}" mode="aspectFill" />
+    <view class="cover-overlay"></view>
+  </view>
+
+  <!-- 店铺信息 -->
+  <view class="store-info">
+    <image class="store-avatar" src="{{merchant.avatar}}" mode="aspectFill" />
+    <text class="store-name">{{merchant.name}}</text>
+    <text class="store-desc">{{merchant.description}}</text>
+    <view class="store-stats">
+      <text class="stat">{{merchant.stats.models}} 个模型</text>
+      <text class="stat-divider">|</text>
+      <text class="stat">{{merchant.stats.views}} 次浏览</text>
+      <text class="stat-divider">|</text>
+      <text class="stat">{{merchant.stats.rating}} 分</text>
+    </view>
+  </view>
+
+  <!-- 联系按钮 -->
+  <view class="contact-row">
+    <button class="btn-contact" bindtap="onContactMerchant">💬 联系商家</button>
+  </view>
+
+  <!-- 模型列表 -->
+  <view class="models-section">
+    <text class="section-title">全部模型</text>
+    <view class="models-grid" wx:if="{{models.length}}">
+      <model-card
+        wx:for="{{models}}"
+        wx:key="id"
+        model="{{item}}"
+        bind:tap="onCardTap"
+      />
+    </view>
+    <view class="empty" wx:else>
+      <text class="empty-text">暂无展示模型</text>
+    </view>
+  </view>
+</view>

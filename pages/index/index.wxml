@@ -1,30 +1,105 @@
-<view class="container">
+<view class="home-page">
+  <!-- Hero区域 -->
   <view class="hero">
-    <view class="logo">🎨</view>
-    <text class="title">{{motto}}</text>
-    <text class="subtitle">基于 Three.js 的微信小程序 3D 渲染方案</text>
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <text class="hero-title">3D模型展示租赁平台</text>
+      <text class="hero-subtitle">为建模师提供专属展示位，让客户沉浸式体验每一个模型</text>
+    </view>
+    <view class="hero-stats">
+      <view class="stat-item">
+        <text class="stat-num">50+</text>
+        <text class="stat-label">入驻商家</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">200+</text>
+        <text class="stat-label">精品模型</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">10K+</text>
+        <text class="stat-label">月浏览次</text>
+      </view>
+    </view>
   </view>
 
-  <view class="features">
-    <view class="feature-item">
-      <text class="feature-icon">🔮</text>
-      <text class="feature-text">程序化几何体渲染</text>
-    </view>
-    <view class="feature-item">
-      <text class="feature-icon">📦</text>
-      <text class="feature-text">GLB / GLTF 模型加载</text>
-    </view>
-    <view class="feature-item">
-      <text class="feature-icon">👆</text>
-      <text class="feature-text">触摸旋转交互</text>
-    </view>
-    <view class="feature-item">
-      <text class="feature-icon">💡</text>
-      <text class="feature-text">实时动态光照</text>
+  <!-- 平台特色 -->
+  <view class="section">
+    <text class="section-title">平台特色</text>
+    <view class="features-grid">
+      <view class="feature-card">
+        <text class="feature-icon">🔄</text>
+        <text class="feature-name">360°旋转交互</text>
+        <text class="feature-desc">单指旋转，双指缩放，全方位查看模型细节</text>
+      </view>
+      <view class="feature-card">
+        <text class="feature-icon">✨</text>
+        <text class="feature-name">PBR材质呈现</text>
+        <text class="feature-desc">真实物理渲染，还原金属、皮革、布料质感</text>
+      </view>
+      <view class="feature-card">
+        <text class="feature-icon">💡</text>
+        <text class="feature-name">实时动态光照</text>
+        <text class="feature-desc">多光源系统，展现模型的体积与光影层次</text>
+      </view>
+      <view class="feature-card">
+        <text class="feature-icon">⚡</text>
+        <text class="feature-name">极速加载</text>
+        <text class="feature-desc">优化的模型传输方案，快速加载即刻体验</text>
+      </view>
     </view>
   </view>
 
-  <button class="btn-enter" bindtap="goToViewer">
-    进入 3D 模型展示
-  </button>
+  <!-- 分类入口 -->
+  <view class="section">
+    <text class="section-title">模型分类</text>
+    <view class="categories-scroll">
+      <view
+        wx:for="{{categories}}"
+        wx:key="key"
+        class="category-chip"
+        data-category="{{item.key}}"
+        bindtap="onCategoryTap"
+      >
+        <text class="chip-icon">{{item.icon}}</text>
+        <text class="chip-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 精选模型 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">精选模型</text>
+      <text class="section-more" bindtap="onGoBrowse">查看全部 ›</text>
+    </view>
+    <scroll-view class="featured-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="featured-list">
+        <view
+          wx:for="{{featuredModels}}"
+          wx:key="id"
+          class="featured-item"
+        >
+          <model-card model="{{item}}" bind:tap="onCardTap" />
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 商家入驻引导 -->
+  <view class="section">
+    <view class="cta-banner" bindtap="onGoMerchant">
+      <view class="cta-text">
+        <text class="cta-title">拥有自己的3D模型？</text>
+        <text class="cta-subtitle">立即入驻，获得专属展示位，让更多人看见你的作品</text>
+      </view>
+      <view class="cta-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 底部留白给tab-bar -->
+  <view class="bottom-spacer"></view>
+
+  <tab-bar active="home" />
 </view>

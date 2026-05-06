@@ -1,0 +1,33 @@
+<view class="mm-page">
+  <!-- 顶栏 -->
+  <view class="top-bar">
+    <text class="page-title">我的模型</text>
+    <view class="add-btn" bindtap="onAddModel">
+      <text>+ 添加模型</text>
+    </view>
+  </view>
+
+  <!-- 模型列表 -->
+  <view class="model-list">
+    <view wx:for="{{models}}" wx:key="id" class="model-item">
+      <image class="model-thumb" src="{{item.thumbnail}}" mode="aspectFill" />
+      <view class="model-info">
+        <text class="model-name">{{item.name}}</text>
+        <view class="model-meta">
+          <text class="meta">{{item.faces / 1000}}K面</text>
+          <text class="meta">更新于 {{item.updatedAt}}</text>
+        </view>
+        <view class="model-status {{statusMap[item.status].cls}}">
+          {{statusMap[item.status].label}}
+        </view>
+      </view>
+      <view class="model-actions">
+        <view class="action-btn" data-id="{{item.id}}" bindtap="onEdit">编辑</view>
+        <view class="action-btn" data-id="{{item.id}}" data-status="{{item.status}}" bindtap="onToggleStatus">
+          {{item.status === 'published' ? '下架' : '上架'}}
+        </view>
+        <view class="action-btn action-delete" data-id="{{item.id}}" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+  </view>
+</view>

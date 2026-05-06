@@ -3,8 +3,9 @@ import { createScopedThreejs } from 'threejs-miniprogram'
 Page({
   data: {
     modelUrl: '',
-    modelName: '默认示例模型',
+    modelName: '加载中...',
     loading: false,
+    sceneReady: false,
     showInput: false,
     autoRotate: true
   },
@@ -29,6 +30,13 @@ Page({
   targetSpherical: { theta: Math.PI / 4, phi: Math.PI / 3, radius: 12 },
   autoRotateSpeed: 0.3,
   isDragging: false,
+
+  onLoad(options) {
+    if (options.modelUrl) {
+      this.pendingModelUrl = decodeURIComponent(options.modelUrl)
+      this.pendingModelName = options.modelName ? decodeURIComponent(options.modelName) : '已加载模型'
+    }
+  },
 
   onReady() {
     this.init3D()
@@ -62,7 +70,8 @@ Page({
       this.THREE = createScopedThreejs(this.canvas)
       this.setupScene()
       this.setupLights()
-      this.createDefaultModel()
+      this.createGroundPlane()
+      this.createParticles()
       this.setupCamera()
       this.renderer = new this.THREE.WebGLRenderer({
         canvas: this.canvas,
@@ -76,6 +85,12 @@ Page({
       this.renderer.toneMappingExposure = 1.2
       this.clock = new this.THREE.Clock()
       this.animate()
+      this.setData({ sceneReady: true })
+
+      if (this.pendingModelUrl) {
+        this.setData({ modelName: this.pendingModelName })
+        this.loadModelFromUrl(this.pendingModelUrl)
+      }
     })
   },
 
@@ -330,7 +345,6 @@ Page({
 
   loadModelFromUrl(url) {
     this.setData({ loading: true })
-    wx.showLoading({ title: '加载模型中...' })
 
     wx.downloadFile({
       url: url,
@@ -338,13 +352,11 @@ Page({
         if (res.statusCode === 200) {
           this.parseGLBModel(res.tempFilePath)
         } else {
-          wx.hideLoading()
           wx.showToast({ title: '下载失败: ' + res.statusCode, icon: 'none' })
           this.setData({ loading: false })
         }
       },
       fail: (err) => {
-        wx.hideLoading()
         wx.showToast({ title: '下载失败, 请检查URL', icon: 'none' })
         this.setData({ loading: false })
       }
@@ -356,28 +368,361 @@ Page({
     const fs = wx.getFileSystemManager()
     try {
       const data = fs.readFileSync(filePath)
-      const loader = this.createGLTFLoader()
+      const loader = this.createGLTFLoader(this.canvas)
       loader.parse(data, '', (gltf) => {
-        wx.hideLoading()
         this.replaceModel(gltf.scene)
-        this.setData({ loading: false, modelName: '已加载外部模型' })
+        if (!this.data.modelName || this.data.modelName === '加载中...') {
+          this.setData({ modelName: '已加载模型' })
+        }
+        this.setData({ loading: false })
         wx.showToast({ title: '加载成功', icon: 'success' })
       }, (error) => {
-        wx.hideLoading()
         console.error('解析失败:', error)
         wx.showToast({ title: '模型解析失败', icon: 'none' })
         this.setData({ loading: false })
       })
     } catch (e) {
-      wx.hideLoading()
       console.error('读取文件失败:', e)
       wx.showToast({ title: '文件读取失败', icon: 'none' })
       this.setData({ loading: false })
     }
   },
 
-  createGLTFLoader() {
+  createGLTFLoader(canvas) {
     const THREE = this.THREE
+
+    const GL_SAMPLER_FILTER = {
+      9728: THREE.NearestFilter,
+      9729: THREE.LinearFilter,
+      9984: THREE.NearestMipmapNearestFilter,
+      9985: THREE.LinearMipmapNearestFilter,
+      9986: THREE.NearestMipmapLinearFilter,
+      9987: THREE.LinearMipmapLinearFilter
+    }
+
+    const GL_SAMPLER_WRAP = {
+      33071: THREE.ClampToEdgeWrapping,
+      33648: THREE.MirroredRepeatWrapping,
+      10497: THREE.RepeatWrapping
+    }
+
+    function parseSamplers(gltf) {
+      const samplers = gltf.samplers || []
+      const configs = []
+      samplers.forEach((s) => {
+        configs.push({
+          magFilter: GL_SAMPLER_FILTER[s.magFilter] || THREE.LinearFilter,
+          minFilter: GL_SAMPLER_FILTER[s.minFilter] || THREE.LinearMipmapLinearFilter,
+          wrapS: GL_SAMPLER_WRAP[s.wrapS] || THREE.RepeatWrapping,
+          wrapT: GL_SAMPLER_WRAP[s.wrapT] || THREE.RepeatWrapping
+        })
+      })
+      return configs
+    }
+
+    function getImageData(imageDef, bufferViews, binData) {
+      if (imageDef.bufferView !== undefined) {
+        const bv = bufferViews[imageDef.bufferView]
+        const start = bv.byteOffset || 0
+        return {
+          data: binData.slice(start, start + bv.byteLength),
+          mimeType: imageDef.mimeType || 'image/png'
+        }
+      }
+      if (imageDef.uri) {
+        return { uri: imageDef.uri }
+      }
+      return null
+    }
+
+    function loadImage(imgInfo, canvas) {
+      return new Promise((resolve, reject) => {
+        if (!imgInfo || (!imgInfo.data && !imgInfo.uri)) {
+          return resolve(null)
+        }
+        const img = canvas.createImage()
+        img.onload = () => resolve(img)
+        img.onerror = (err) => reject(err)
+        if (imgInfo.data) {
+          const base64 = wx.arrayBufferToBase64(imgInfo.data)
+          img.src = 'data:' + imgInfo.mimeType + ';base64,' + base64
+        } else if (imgInfo.uri) {
+          img.src = imgInfo.uri
+        }
+      })
+    }
+
+    function buildScene(gltf, binData, onLoad) {
+      const samplerConfigs = parseSamplers(gltf)
+      const bufferViews = gltf.bufferViews || []
+      const images = gltf.images || []
+      const textures = gltf.textures || []
+
+      const imageInfos = images.map((imgDef) => getImageData(imgDef, bufferViews, binData))
+      const loadPromises = imageInfos.map((info) => loadImage(info, canvas))
+
+      Promise.all(loadPromises).then((loadedImages) => {
+        const threeTextures = []
+        textures.forEach((texDef) => {
+          const img = loadedImages[texDef.source]
+          if (!img) {
+            threeTextures.push(null)
+            return
+          }
+          const texture = new THREE.Texture(img)
+          const sampler = texDef.sampler !== undefined ? samplerConfigs[texDef.sampler] : null
+          if (sampler) {
+            texture.wrapS = sampler.wrapS
+            texture.wrapT = sampler.wrapT
+            texture.magFilter = sampler.magFilter
+            texture.minFilter = sampler.minFilter
+          }
+          texture.flipY = false
+          texture.needsUpdate = true
+          threeTextures.push(texture)
+        })
+
+        finishBuild(gltf, binData, threeTextures, onLoad)
+      }).catch((err) => {
+        console.error('纹理加载失败，使用无纹理渲染:', err)
+        finishBuild(gltf, binData, [], onLoad)
+      })
+    }
+
+    function finishBuild(gltf, binData, threeTextures, onLoad) {
+      const group = new THREE.Group()
+      group.name = 'mainModel'
+
+      const accessors = gltf.accessors || []
+      const bufferViews = gltf.bufferViews || []
+      const meshes = gltf.meshes || []
+      const nodes = gltf.nodes || []
+      const materials = gltf.materials || []
+
+      function getTextureInfo(textureInfo) {
+        if (!textureInfo || textureInfo.index === undefined) return null
+        const tex = threeTextures[textureInfo.index]
+        if (!tex) return null
+        return { texture: tex, texCoord: textureInfo.texCoord || 0 }
+      }
+
+      const materialCache = {}
+      materials.forEach((matDef, idx) => {
+        const pbr = matDef.pbrMetallicRoughness || {}
+        const mat = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(
+            pbr.baseColorFactor ? pbr.baseColorFactor[0] : 1,
+            pbr.baseColorFactor ? pbr.baseColorFactor[1] : 1,
+            pbr.baseColorFactor ? pbr.baseColorFactor[2] : 1
+          ),
+          roughness: pbr.roughnessFactor !== undefined ? pbr.roughnessFactor : 0.5,
+          metalness: pbr.metallicFactor !== undefined ? pbr.metallicFactor : 0.5
+        })
+
+        if (pbr.baseColorFactor && pbr.baseColorFactor.length >= 4) {
+          mat.opacity = pbr.baseColorFactor[3]
+        }
+
+        const baseColorTex = getTextureInfo(pbr.baseColorTexture)
+        if (baseColorTex) {
+          mat.map = baseColorTex.texture
+        }
+
+        const mrTex = getTextureInfo(pbr.metallicRoughnessTexture)
+        if (mrTex) {
+          mat.metalnessMap = mrTex.texture
+          mat.roughnessMap = mrTex.texture
+        }
+
+        const normalTex = getTextureInfo(matDef.normalTexture)
+        if (normalTex) {
+          mat.normalMap = normalTex.texture
+          if (matDef.normalTexture.scale !== undefined) {
+            mat.normalScale.setScalar(matDef.normalTexture.scale)
+          }
+        }
+
+        const occlusionTex = getTextureInfo(matDef.occlusionTexture)
+        if (occlusionTex) {
+          mat.aoMap = occlusionTex.texture
+          mat.aoMapIntensity = matDef.occlusionTexture.strength !== undefined
+            ? matDef.occlusionTexture.strength : 1
+        }
+
+        const emissiveTex = getTextureInfo(matDef.emissiveTexture)
+        if (emissiveTex) {
+          mat.emissiveMap = emissiveTex.texture
+        }
+        if (matDef.emissiveFactor) {
+          mat.emissive = new THREE.Color(
+            matDef.emissiveFactor[0],
+            matDef.emissiveFactor[1],
+            matDef.emissiveFactor[2]
+          )
+        }
+
+        if (matDef.alphaMode === 'BLEND') {
+          mat.transparent = true
+          mat.depthWrite = false
+        } else if (matDef.alphaMode === 'MASK') {
+          mat.alphaTest = matDef.alphaCutoff !== undefined ? matDef.alphaCutoff : 0.5
+        }
+
+        if (matDef.doubleSided) {
+          mat.side = THREE.DoubleSide
+        }
+
+        materialCache[idx] = mat
+      })
+
+      function getBufferData(accessorIdx) {
+        const accessor = accessors[accessorIdx]
+        const bufferView = bufferViews[accessor.bufferView]
+        if (!binData || !bufferView) return null
+        const start = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0)
+        return binData.slice(start, start + bufferView.byteLength)
+      }
+
+      function getComponentCount(type) {
+        const map = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT2: 4, MAT3: 9, MAT4: 16 }
+        return map[type] || 3
+      }
+
+      function getGLTypeSize(componentType) {
+        const map = { 5120: 1, 5121: 1, 5122: 2, 5123: 2, 5125: 4, 5126: 4 }
+        return map[componentType] || 4
+      }
+
+      function createGeoFromAccessor(posIdx, normalIdx, uvIdx, indicesIdx) {
+        const geo = new THREE.BufferGeometry()
+        const posData = getBufferData(posIdx)
+        if (posData) {
+          const typedArray = new Float32Array(posData.slice(0))
+          geo.addAttribute('position', new THREE.BufferAttribute(typedArray, 3))
+        }
+        if (normalIdx !== undefined && normalIdx !== null) {
+          const normData = getBufferData(normalIdx)
+          if (normData) {
+            const typedArray = new Float32Array(normData.slice(0))
+            geo.addAttribute('normal', new THREE.BufferAttribute(typedArray, 3))
+          }
+        }
+        if (uvIdx !== undefined && uvIdx !== null) {
+          const uvData = getBufferData(uvIdx)
+          if (uvData) {
+            const count = accessors[uvIdx].count
+            const type = accessors[uvIdx].type
+            const compCount = getComponentCount(type)
+            const glType = getGLTypeSize(accessors[uvIdx].componentType)
+            if (glType === 4) {
+              geo.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvData.slice(0, count * compCount * 4)), compCount))
+            } else if (glType === 2) {
+              const src = new Uint16Array(uvData.slice(0, count * compCount * 2))
+              const dst = new Float32Array(src.length)
+              for (let i = 0; i < src.length; i++) dst[i] = src[i]
+              geo.addAttribute('uv', new THREE.BufferAttribute(dst, compCount))
+            } else {
+              const src = new Uint8Array(uvData.slice(0, count * compCount * 1))
+              const dst = new Float32Array(src.length)
+              for (let i = 0; i < src.length; i++) dst[i] = src[i]
+              geo.addAttribute('uv', new THREE.BufferAttribute(dst, compCount))
+            }
+          }
+        }
+        if (indicesIdx !== undefined && indicesIdx !== null) {
+          const idxData = getBufferData(indicesIdx)
+          if (idxData) {
+            const componentType = accessors[indicesIdx].componentType
+            if (componentType === 5123) {
+              geo.setIndex(Array.from(new Uint16Array(idxData.slice(0))))
+            } else if (componentType === 5125) {
+              geo.setIndex(Array.from(new Uint32Array(idxData.slice(0))))
+            }
+          }
+        }
+        return geo
+      }
+
+      const nodeMap = {}
+      nodes.forEach((nodeDef, idx) => {
+        let meshObj = null
+        if (nodeDef.mesh !== undefined) {
+          const meshDef = meshes[nodeDef.mesh]
+          meshDef.primitives.forEach((prim) => {
+            const geo = createGeoFromAccessor(
+              prim.attributes.POSITION,
+              prim.attributes.NORMAL,
+              prim.attributes.TEXCOORD_0,
+              prim.indices
+            )
+            const matIdx = prim.material !== undefined ? prim.material : 0
+            const mat = materialCache[matIdx] || new THREE.MeshStandardMaterial({ color: 0xcccccc })
+            const mesh = new THREE.Mesh(geo, mat)
+            mesh.castShadow = true
+            mesh.receiveShadow = true
+            if (!meshObj) {
+              meshObj = mesh
+            } else {
+              if (Array.isArray(meshObj)) {
+                meshObj.push(mesh)
+              } else {
+                const group2 = new THREE.Group()
+                group2.add(meshObj)
+                group2.add(mesh)
+                meshObj = group2
+              }
+            }
+          })
+        }
+        const node = meshObj || new THREE.Object3D()
+        node.name = nodeDef.name || ('node_' + idx)
+        if (nodeDef.translation) {
+          node.position.set(nodeDef.translation[0], nodeDef.translation[1], nodeDef.translation[2])
+        }
+        if (nodeDef.rotation) {
+          node.quaternion.set(nodeDef.rotation[0], nodeDef.rotation[1], nodeDef.rotation[2], nodeDef.rotation[3])
+        }
+        if (nodeDef.scale) {
+          node.scale.set(nodeDef.scale[0], nodeDef.scale[1], nodeDef.scale[2])
+        }
+        nodeMap[idx] = node
+      })
+
+      nodes.forEach((nodeDef, idx) => {
+        const node = nodeMap[idx]
+        if (nodeDef.children) {
+          nodeDef.children.forEach((childIdx) => {
+            node.add(nodeMap[childIdx])
+          })
+        }
+      })
+
+      const rootNodes = gltf.scenes ? gltf.scenes[gltf.scene || 0] : null
+      if (rootNodes && rootNodes.nodes) {
+        rootNodes.nodes.forEach((nodeIdx) => {
+          group.add(nodeMap[nodeIdx])
+        })
+      } else {
+        nodes.forEach((nodeDef, idx) => {
+          let isChild = false
+          nodes.forEach((nd) => {
+            if (nd.children && nd.children.indexOf(idx) !== -1) isChild = true
+          })
+          if (!isChild) group.add(nodeMap[idx])
+        })
+      }
+
+      const box = new THREE.Box3().setFromObject(group)
+      const center = box.getCenter(new THREE.Vector3())
+      const size = box.getSize(new THREE.Vector3())
+      const maxDim = Math.max(size.x, size.y, size.z)
+      const scale = maxDim > 0 ? 5 / maxDim : 1
+      group.scale.setScalar(scale)
+      group.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
+
+      onLoad({ scene: group })
+    }
+
     const loader = {
       parse(data, path, onLoad, onError) {
         if (data.byteLength >= 4) {
@@ -421,189 +766,6 @@ Page({
       }
     }
 
-    function buildScene(gltf, binData, onLoad) {
-      const group = new THREE.Group()
-      group.name = 'mainModel'
-
-        const accessors = gltf.accessors || []
-        const bufferViews = gltf.bufferViews || []
-        const meshes = gltf.meshes || []
-        const nodes = gltf.nodes || []
-        const materials = gltf.materials || []
-        const images = gltf.images || []
-        const textures = gltf.textures || []
-
-        const materialCache = {}
-        materials.forEach((matDef, idx) => {
-          const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(
-              (matDef.pbrMetallicRoughness && matDef.pbrMetallicRoughness.baseColorFactor)
-                ? matDef.pbrMetallicRoughness.baseColorFactor[0]
-                : 1,
-              (matDef.pbrMetallicRoughness && matDef.pbrMetallicRoughness.baseColorFactor)
-                ? matDef.pbrMetallicRoughness.baseColorFactor[1]
-                : 1,
-              (matDef.pbrMetallicRoughness && matDef.pbrMetallicRoughness.baseColorFactor)
-                ? matDef.pbrMetallicRoughness.baseColorFactor[2]
-                : 1
-            ),
-            roughness: (matDef.pbrMetallicRoughness && matDef.pbrMetallicRoughness.roughnessFactor !== undefined)
-              ? matDef.pbrMetallicRoughness.roughnessFactor : 0.5,
-            metalness: (matDef.pbrMetallicRoughness && matDef.pbrMetallicRoughness.metallicFactor !== undefined)
-              ? matDef.pbrMetallicRoughness.metallicFactor : 0.5
-          })
-          materialCache[idx] = mat
-        })
-
-        function getBufferData(accessorIdx) {
-          const accessor = accessors[accessorIdx]
-          const bufferView = bufferViews[accessor.bufferView]
-          if (!binData || !bufferView) return null
-          const start = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0)
-          return binData.slice(start, start + bufferView.byteLength)
-        }
-
-        function getComponentCount(type) {
-          const map = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT2: 4, MAT3: 9, MAT4: 16 }
-          return map[type] || 3
-        }
-
-        function getGLTypeSize(componentType) {
-          const map = { 5120: 1, 5121: 1, 5122: 2, 5123: 2, 5125: 4, 5126: 4 }
-          return map[componentType] || 4
-        }
-
-        function createGeoFromAccessor(posIdx, normalIdx, uvIdx, indicesIdx) {
-          const posAccessor = accessors[posIdx]
-          const geo = new THREE.BufferGeometry()
-          const posData = getBufferData(posIdx)
-          if (posData) {
-            const typedArray = new Float32Array(posData.slice(0))
-            geo.addAttribute('position', new THREE.BufferAttribute(typedArray, 3))
-          }
-          if (normalIdx !== undefined && normalIdx !== null) {
-            const normData = getBufferData(normalIdx)
-            if (normData) {
-              const typedArray = new Float32Array(normData.slice(0))
-              geo.addAttribute('normal', new THREE.BufferAttribute(typedArray, 3))
-            }
-          }
-          if (uvIdx !== undefined && uvIdx !== null) {
-            const uvData = getBufferData(uvIdx)
-            if (uvData) {
-              const count = accessors[uvIdx].count
-              const type = accessors[uvIdx].type
-              const compCount = getComponentCount(type)
-              const glType = getGLTypeSize(accessors[uvIdx].componentType)
-              if (glType === 4) {
-                geo.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvData.slice(0, count * compCount * 4)), compCount))
-              } else if (glType === 2) {
-                const src = new Uint16Array(uvData.slice(0, count * compCount * 2))
-                const dst = new Float32Array(src.length)
-                for (let i = 0; i < src.length; i++) dst[i] = src[i]
-                geo.addAttribute('uv', new THREE.BufferAttribute(dst, compCount))
-              } else {
-                const src = new Uint8Array(uvData.slice(0, count * compCount * 1))
-                const dst = new Float32Array(src.length)
-                for (let i = 0; i < src.length; i++) dst[i] = src[i]
-                geo.addAttribute('uv', new THREE.BufferAttribute(dst, compCount))
-              }
-            }
-          }
-          if (indicesIdx !== undefined && indicesIdx !== null) {
-            const idxData = getBufferData(indicesIdx)
-            if (idxData) {
-              const componentType = accessors[indicesIdx].componentType
-              if (componentType === 5123) {
-                geo.setIndex(Array.from(new Uint16Array(idxData.slice(0))))
-              } else if (componentType === 5125) {
-                geo.setIndex(Array.from(new Uint32Array(idxData.slice(0))))
-              }
-            }
-          }
-          return geo
-        }
-
-        const nodeMap = {}
-        nodes.forEach((nodeDef, idx) => {
-          let meshObj = null
-          if (nodeDef.mesh !== undefined) {
-            const meshDef = meshes[nodeDef.mesh]
-            meshDef.primitives.forEach((prim) => {
-              const geo = createGeoFromAccessor(
-                prim.attributes.POSITION,
-                prim.attributes.NORMAL,
-                prim.attributes.TEXCOORD_0,
-                prim.indices
-              )
-              const matIdx = prim.material !== undefined ? prim.material : 0
-              const mat = materialCache[matIdx] || new THREE.MeshStandardMaterial({ color: 0xcccccc })
-              const mesh = new THREE.Mesh(geo, mat)
-              mesh.castShadow = true
-              mesh.receiveShadow = true
-              if (!meshObj) {
-                meshObj = mesh
-              } else {
-                if (Array.isArray(meshObj)) {
-                  meshObj.push(mesh)
-                } else {
-                  const group2 = new THREE.Group()
-                  group2.add(meshObj)
-                  group2.add(mesh)
-                  meshObj = group2
-                }
-              }
-            })
-          }
-          const node = meshObj || new THREE.Object3D()
-          node.name = nodeDef.name || ('node_' + idx)
-          if (nodeDef.translation) {
-            node.position.set(nodeDef.translation[0], nodeDef.translation[1], nodeDef.translation[2])
-          }
-          if (nodeDef.rotation) {
-            node.quaternion.set(nodeDef.rotation[0], nodeDef.rotation[1], nodeDef.rotation[2], nodeDef.rotation[3])
-          }
-          if (nodeDef.scale) {
-            node.scale.set(nodeDef.scale[0], nodeDef.scale[1], nodeDef.scale[2])
-          }
-          nodeMap[idx] = node
-        })
-
-        nodes.forEach((nodeDef, idx) => {
-          const node = nodeMap[idx]
-          if (nodeDef.children) {
-            nodeDef.children.forEach((childIdx) => {
-              node.add(nodeMap[childIdx])
-            })
-          }
-        })
-
-        const rootNodes = gltf.scenes ? gltf.scenes[gltf.scene || 0] : null
-        if (rootNodes && rootNodes.nodes) {
-          rootNodes.nodes.forEach((nodeIdx) => {
-            group.add(nodeMap[nodeIdx])
-          })
-        } else {
-          nodes.forEach((nodeDef, idx) => {
-            let isChild = false
-            nodes.forEach((nd) => {
-              if (nd.children && nd.children.indexOf(idx) !== -1) isChild = true
-            })
-            if (!isChild) group.add(nodeMap[idx])
-          })
-        }
-
-        const box = new THREE.Box3().setFromObject(group)
-        const center = box.getCenter(new THREE.Vector3())
-        const size = box.getSize(new THREE.Vector3())
-        const maxDim = Math.max(size.x, size.y, size.z)
-        const scale = maxDim > 0 ? 5 / maxDim : 1
-        group.scale.setScalar(scale)
-        group.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
-
-        onLoad({ scene: group })
-    }
-
     return loader
   },
 
@@ -620,10 +782,9 @@ Page({
       this.scene.remove(this.mainModel)
       this.mainModel = null
     }
-    this.createDefaultModel()
     this.setData({
       modelUrl: '',
-      modelName: '默认示例模型',
+      modelName: '加载中...',
       loading: false
     })
     wx.showToast({ title: '已重置', icon: 'success' })

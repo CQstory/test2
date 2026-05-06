@@ -1,0 +1,102 @@
+page {
+  background: #0f0c29;
+}
+
+.list-page {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.top-bar {
+  padding: 100rpx 32rpx 24rpx;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 0 20rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 36rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.search-icon {
+  font-size: 28rpx;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  height: 100%;
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+/* Category tabs */
+.category-tabs {
+  white-space: nowrap;
+  padding: 0 32rpx 24rpx;
+}
+
+.category-tabs .tab {
+  display: inline-block;
+  padding: 12rpx 32rpx;
+  margin-right: 16rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 32rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.category-tabs .tab-active {
+  color: #ffffff;
+  background: rgba(78, 205, 196, 0.2);
+  border-color: rgba(78, 205, 196, 0.4);
+  font-weight: 500;
+}
+
+/* Grid */
+.list-content {
+  padding: 0 24rpx;
+}
+
+.list-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.list-grid > model-card {
+  width: calc(50% - 10rpx);
+  margin-bottom: 20rpx;
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.35);
+}

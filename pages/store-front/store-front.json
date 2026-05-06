@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "商家店铺",
+  "navigationBarBackgroundColor": "#0f0c29",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "model-card": "/components/model-card/model-card"
+  }
+}

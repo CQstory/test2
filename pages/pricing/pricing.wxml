@@ -1,0 +1,42 @@
+<view class="pricing-page">
+  <view class="page-header">
+    <text class="page-title">选择适合你的套餐</text>
+    <text class="page-subtitle">按月租赁，灵活选择，随时升级</text>
+  </view>
+
+  <!-- 套餐卡片 -->
+  <view class="plans-list">
+    <view
+      wx:for="{{plans}}"
+      wx:key="id"
+      class="plan-card {{item.highlight ? 'plan-highlight' : ''}}"
+    >
+      <view class="plan-badge" wx:if="{{item.highlight}}">🔥 推荐</view>
+      <text class="plan-name">{{item.name}}</text>
+      <view class="plan-price">
+        <text class="price-symbol">¥</text>
+        <text class="price-value">{{item.price}}</text>
+        <text class="price-unit">/{{item.unit}}</text>
+      </view>
+      <view class="plan-slots">
+        <text>{{item.slots === -1 ? '不限展示位' : item.slots + ' 个展示位'}}</text>
+      </view>
+
+      <!-- 功能列表 -->
+      <view class="plan-features">
+        <view wx:for="{{item.features}}" wx:key="*this" class="feature-row">
+          <text class="feature-check">✓</text>
+          <text class="feature-text">{{item}}</text>
+        </view>
+      </view>
+
+      <button
+        class="btn-buy {{item.highlight ? 'btn-primary' : ''}}"
+        data-plan="{{item}}"
+        bindtap="onBuy"
+      >
+        {{currentPlan === item.id ? '当前套餐' : '立即购买'}}
+      </button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,143 @@
+page {
+  background: #0f0c29;
+}
+
+.pricing-page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.page-header {
+  padding: 40rpx 32rpx 32rpx;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Plans */
+.plans-list {
+  padding: 0 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.plan-card {
+  position: relative;
+  padding: 36rpx 32rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-highlight {
+  background: rgba(78, 205, 196, 0.08);
+  border-color: rgba(78, 205, 196, 0.3);
+  border-width: 2rpx;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -2rpx;
+  right: 32rpx;
+  padding: 8rpx 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  border-radius: 0 0 12rpx 12rpx;
+}
+
+.plan-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 12rpx;
+}
+
+.price-symbol {
+  font-size: 32rpx;
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 56rpx;
+  font-weight: 800;
+  color: #4ecdc4;
+  margin: 0 4rpx;
+}
+
+.price-unit {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.plan-slots {
+  margin-bottom: 24rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Features */
+.plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-bottom: 28rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.feature-check {
+  font-size: 22rpx;
+  color: #4ecdc4;
+  font-weight: 700;
+}
+
+.feature-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Button */
+.btn-buy {
+  width: 100%;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-primary {
+  color: #1a1a2e;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  border: none;
+}

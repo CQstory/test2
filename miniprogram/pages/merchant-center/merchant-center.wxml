@@ -1,0 +1,11 @@
+<view class="page">
+  <top-bar title="消息" />
+  <view class="page-content">
+    <view class="placeholder">
+      <text class="placeholder-icon">💬</text>
+      <text class="placeholder-text">消息中心建设中</text>
+      <text class="placeholder-sub">敬请期待</text>
+    </view>
+  </view>
+  <tab-bar active="merchant" />
+</view>

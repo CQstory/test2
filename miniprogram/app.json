@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/model-list/model-list",
+    "pages/merchant-center/merchant-center",
+    "pages/profile/profile",
+    "pages/model-detail/model-detail",
+    "pages/store-front/store-front",
+    "pages/merchant-models/merchant-models",
+    "pages/pricing/pricing",
+    "pages/shop-settings/shop-settings",
+    "pages/favorites/favorites",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/reset-pwd/reset-pwd"
+  ],
+  "subPackages": [
+    {
+      "root": "subpackages/modelViewer",
+      "pages": ["pages/viewer/viewer"]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "all",
+      "packages": ["subpackages/modelViewer"]
+    },
+    "pages/model-list/model-list": {
+      "network": "all",
+      "packages": ["subpackages/modelViewer"]
+    },
+    "pages/model-detail/model-detail": {
+      "network": "all",
+      "packages": ["subpackages/modelViewer"]
+    }
+  },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      { "pagePath": "pages/index/index", "text": "主页" },
+      { "pagePath": "pages/model-list/model-list", "text": "模型库" },
+      { "pagePath": "pages/merchant-center/merchant-center", "text": "消息" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
+}

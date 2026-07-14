@@ -1,0 +1,22 @@
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
+  background: #ffffff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+.status-bar-spacer { height: var(--status-bar-height, 44px); }
+.bar-content {
+  display: flex; align-items: center; justify-content: center;
+  height: 88rpx; position: relative;
+}
+.back-btn {
+  position: absolute; left: 16rpx;
+  display: flex; align-items: center;
+  padding: 12rpx 20rpx;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 32rpx;
+}
+.back-icon { font-size: 40rpx; color: #1a1a1a; margin-right: 4rpx; }
+.back-text { font-size: 28rpx; color: #1a1a1a; }
+.page-title { font-size: 36rpx; font-weight: 600; color: #1a1a1a; }

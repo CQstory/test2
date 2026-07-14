@@ -1,0 +1,30 @@
+<view class="page">
+  <top-bar title="{{model.name || '模型详情'}}" showBack="{{true}}" />
+  <view class="page-content">
+    <image class="detail-image" src="{{model.thumbnail}}" mode="aspectFill" />
+    <view class="info-card">
+      <text class="model-name">{{model.name}}</text>
+      <text class="model-desc">{{model.description}}</text>
+      <view class="info-row">
+        <text class="info-label">面数</text>
+        <text class="info-value">{{facesText}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">格式</text>
+        <text class="info-value">{{model.format}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">商家</text>
+        <text class="info-value">{{model.merchantName}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">浏览量</text>
+        <text class="info-value">👁️ {{model.views}}</text>
+      </view>
+    </view>
+    <view class="action-bar">
+      <button class="btn-3d" bindtap="onView3D">🔍 3D 查看</button>
+    </view>
+    <view class="bottom-spacer"></view>
+  </view>
+</view>

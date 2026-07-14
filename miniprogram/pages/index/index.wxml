@@ -1,0 +1,78 @@
+<view class="home-page">
+  <top-bar title="主页" />
+  <view class="page-content">
+    <view class="banner-section">
+      <swiper class="banner-swiper" indicator-dots autoplay interval="4000" duration="500" circular indicator-color="rgba(255,255,255,0.3)" indicator-active-color="#4ecdc4">
+        <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onBannerTap" data-link="{{item.link}}">
+          <view class="banner-item">
+            <image class="banner-image" src="{{item.image}}" mode="aspectFill" />
+            <view class="banner-overlay"></view>
+            <view class="banner-content">
+              <text class="banner-title">{{item.title}}</text>
+              <text class="banner-subtitle">{{item.subtitle}}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">热门推荐</text>
+      </view>
+      <view class="hot-list">
+        <view wx:for="{{displayHotModels}}" wx:key="id" class="hot-item" bindtap="onHotItemTap" data-model="{{item}}">
+          <view class="hot-image-wrapper">
+            <image class="hot-image" src="{{item.thumbnail}}" mode="aspectFill" />
+            <view class="hot-rank" wx:if="{{index < 3}}">
+              <text class="rank-num">{{index + 1}}</text>
+            </view>
+          </view>
+          <view class="hot-info">
+            <text class="hot-name">{{item.name}}</text>
+            <text class="hot-merchant">{{item.merchantName}}</text>
+            <view class="hot-stats">
+              <text class="hot-stat">👁️ {{item.views}}</text>
+              <text class="hot-stat">❤️ {{item.favorites}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="expand-btn" wx:if="{{hotModels.length > 2 && !hotExpanded}}" bindtap="onExpandHot">
+        <text class="expand-text">展开更多 ({{hotModels.length - 2}}个)</text>
+        <text class="expand-icon">▼</text>
+      </view>
+      <view class="expand-btn" wx:if="{{hotExpanded}}" bindtap="onCollapseHot">
+        <text class="expand-text">收起</text>
+        <text class="expand-icon">▲</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">精选模型</text>
+        <text class="section-more" bindtap="onGoBrowse">查看全部 ›</text>
+      </view>
+      <scroll-view class="featured-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="featured-list">
+          <view wx:for="{{featuredModels}}" wx:key="id" class="featured-item">
+            <model-card model="{{item}}" bind:tap="onCardTap" />
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="section">
+      <view class="cta-banner" bindtap="onGoMerchant">
+        <view class="cta-text">
+          <text class="cta-title">拥有自己的3D模型？</text>
+          <text class="cta-subtitle">立即入驻，获得专属展示位，让更多人看见你的作品</text>
+        </view>
+        <view class="cta-arrow">›</view>
+      </view>
+    </view>
+
+    <view class="bottom-spacer"></view>
+  </view>
+  <tab-bar active="home" />
+</view>

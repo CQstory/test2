@@ -1,0 +1,29 @@
+<view class="page">
+  <top-bar title="模型库" />
+  <view class="page-content">
+    <view class="search-bar">
+      <input class="search-input" placeholder="搜索模型..." value="{{keyword}}" bindinput="onSearchInput" />
+    </view>
+    <scroll-view class="category-scroll" scroll-x show-scrollbar="{{false}}">
+      <view class="category-list">
+        <view
+          wx:for="{{categories}}" wx:key="key"
+          class="cat-item {{activeCategory === item.key ? 'active' : ''}}"
+          data-key="{{item.key}}" bindtap="onCategoryTap"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="model-grid">
+      <view wx:for="{{displayModels}}" wx:key="id" class="grid-item">
+        <model-card model="{{item}}" bind:tap="onCardTap" />
+      </view>
+    </view>
+    <view class="empty" wx:if="{{displayModels.length === 0}}">
+      <text>暂无模型</text>
+    </view>
+    <view class="bottom-spacer"></view>
+  </view>
+  <tab-bar active="browse" />
+</view>

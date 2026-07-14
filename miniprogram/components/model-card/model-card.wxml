@@ -1,0 +1,24 @@
+<view class="card" bindtap="onTap">
+  <view class="card-thumb-wrap">
+    <image class="card-thumb" src="{{model.thumbnail}}" mode="aspectFill" lazy-load />
+    <view class="card-tag" wx:if="{{model.faces}}">
+      <text class="tag-text">{{facesText}}</text>
+    </view>
+    <view class="favorite-btn" catchtap="onFavorite">
+      <text class="favorite-icon">{{isFavorite ? '❤️' : '🤍'}}</text>
+    </view>
+  </view>
+  <view class="card-body">
+    <text class="card-name">{{model.name}}</text>
+    <text class="card-desc">{{model.description || '暂无简介'}}</text>
+    <view class="card-footer">
+      <view class="card-merchant">
+        <image class="merchant-avatar" src="{{model.merchantAvatar}}" mode="aspectFill" />
+        <text class="merchant-name">{{model.merchantName}}</text>
+      </view>
+      <view class="card-category">
+        <text class="category-text">{{categoryText}}</text>
+      </view>
+    </view>
+  </view>
+</view>

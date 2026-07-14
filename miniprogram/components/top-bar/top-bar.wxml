@@ -1,0 +1,10 @@
+<view class="top-bar">
+  <view class="status-bar-spacer"></view>
+  <view class="bar-content">
+    <view class="back-btn" wx:if="{{showBack}}" bindtap="onBack">
+      <text class="back-icon">‹</text>
+      <text class="back-text">返回</text>
+    </view>
+    <text class="page-title">{{title}}</text>
+  </view>
+</view>

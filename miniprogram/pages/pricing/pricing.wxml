@@ -1,0 +1,23 @@
+<view class="page">
+  <top-bar title="套餐定价" showBack="{{true}}" />
+  <view class="page-content">
+    <view
+      wx:for="{{plans}}" wx:key="id"
+      class="plan-card {{item.highlight ? 'highlight' : ''}}"
+    >
+      <text class="plan-name">{{item.name}}</text>
+      <view class="plan-price">
+        <text class="price-num">¥{{item.price}}</text>
+        <text class="price-unit">/{{item.unit}}</text>
+      </view>
+      <text class="plan-slots">{{item.slots === -1 ? '不限展示位' : item.slots + '个展示位'}}</text>
+      <view class="plan-features">
+        <view wx:for="{{item.features}}" wx:key="*this" class="feature-item">
+          <text class="feature-check">&#x2713;</text>
+          <text>{{item}}</text>
+        </view>
+      </view>
+      <view class="plan-badge" wx:if="{{item.highlight}}">推荐</view>
+    </view>
+  </view>
+</view>

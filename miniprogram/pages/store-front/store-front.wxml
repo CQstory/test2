@@ -1,0 +1,25 @@
+<view class="page">
+  <top-bar title="店铺首页" showBack="{{true}}" />
+  <view class="page-content">
+    <image class="store-cover" src="{{merchant.cover}}" mode="aspectFill" />
+    <view class="store-info">
+      <image class="store-avatar" src="{{merchant.avatar}}" mode="aspectFill" />
+      <text class="store-name">{{merchant.name}}</text>
+      <text class="store-desc">{{merchant.description}}</text>
+      <view class="store-stats">
+        <view class="stat-item">
+          <text class="stat-num">{{merchant.stats.models}}</text>
+          <text class="stat-label">模型</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-num">{{merchant.stats.views}}</text>
+          <text class="stat-label">浏览</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-num">{{merchant.stats.rating}}</text>
+          <text class="stat-label">评分</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
